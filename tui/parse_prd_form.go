@@ -163,22 +163,16 @@ func (m *ParsePRDModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// This should ideally be caught by validation, but double-check.
 			m.status = fmt.Sprintf("Error parsing number of tasks: %v. Please correct.", err)
 			m.form.State = huh.StateNormal // Revert state to allow correction
-			// Find the NumTasks field and set its error
-			if group := m.form.GetGroup(1); group != nil {
-				if field := group.GetField(prdFormKeyNumTasks); field != nil {
-					field.Error(fmt.Errorf("invalid number: %s", numTasksInputValue))
-				}
-			}
+			// Note: Direct field access for error setting is not available in huh v0.7.0
+			// Error handling is managed through form validation state
 			return m, nil // Return without further command to allow user to fix
 		}
 		m.NumTasks = parsedNumTasks // Update the model's NumTasks field
 
-		m.status = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Output: %s\n  NumTasks: %d\n  Force: %t\n  Append: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.OutputPath, m.NumTasks, m.Force, m.Append)
+		m.status = "Executing parse-prd command..."
 		m.isProcessing = true
 
-		// TODO: return m, m.executeParsePRDCommand()
-		return m, nil
+		return m, m.executeParsePRDCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -187,6 +181,14 @@ func (m *ParsePRDModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case parsePRDCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.status = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.status = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		// Standard Bubble Tea quit behavior, respects form's own ctrl+c handling.
@@ -227,6 +229,8 @@ func (m *ParsePRDModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.status, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -256,6 +260,19 @@ func (m *ParsePRDModel) GetFormValues() (map[string]interface{}, error) {
 // This message is used by this model to signal navigation.
 // It should be handled in the main model's Update function.
 // type backToMenuMsg struct{} // Assuming this is defined in main.go or a shared file.
+
+// parsePRDCompleteMsg is sent when the command execution is complete
+type parsePRDCompleteMsg struct {
+	result CLIResult
+}
+
+// executeParsePRDCommand executes the actual parse-prd CLI command
+func (m *ParsePRDModel) executeParsePRDCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.ParsePRD(m.FilePath, m.OutputPath, m.NumTasks, m.Force, m.Append)
+		return parsePRDCompleteMsg{result: result}
+	}
+}
 
 // Ensure ParsePRDModel implements tea.Model.
 var _ tea.Model = &ParsePRDModel{}

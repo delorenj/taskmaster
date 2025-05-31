@@ -72,7 +72,6 @@ func NewUpdateSingleTaskForm() *UpdateSingleTaskModel {
 				Key(updateOneTaskFormKeyPrompt).
 				Title("Update Prompt").
 				Description("Explain the changes for this specific task.").
-				Prompt("💬 ").
 				CharLimit(500). // Optional character limit
 				Validate(func(s string) error {
 					if s == "" {
@@ -127,11 +126,9 @@ func (m *UpdateSingleTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.form.State == huh.StateCompleted {
 		// Values are already bound to m.FilePath, m.TaskID, m.Prompt, m.Research.
-		m.status = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Task ID: %s\n  Prompt: %s\n  Research: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.TaskID, m.Prompt, m.Research)
+		m.status = "Executing update-task command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualUpdateSingleTaskCommand()
-		return m, nil
+		return m, m.executeUpdateOneTaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -140,6 +137,14 @@ func (m *UpdateSingleTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case updateOneTaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.status = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.status = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -175,6 +180,8 @@ func (m *UpdateSingleTaskModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.status, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -196,6 +203,19 @@ func (m *UpdateSingleTaskModel) GetFormValues() (map[string]interface{}, error) 
 		updateOneTaskFormKeyPrompt:   m.Prompt,
 		updateOneTaskFormKeyResearch: m.Research,
 	}, nil
+}
+
+// updateOneTaskCompleteMsg is sent when the command execution is complete
+type updateOneTaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeUpdateOneTaskCommand executes the actual update-task CLI command
+func (m *UpdateSingleTaskModel) executeUpdateOneTaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.UpdateOneTask(m.FilePath, m.TaskID, m.Prompt, m.Research)
+		return updateOneTaskCompleteMsg{result: result}
+	}
 }
 
 // Ensure UpdateSingleTaskModel implements tea.Model.

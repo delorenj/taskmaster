@@ -113,26 +113,15 @@ func (m *AddDependencyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.TaskID == m.DependsOn && m.TaskID != "" { // Check bound struct fields
 			m.statusMsg = "Error: Task ID and 'Depends On' ID cannot be the same."
 			m.form.State = huh.StateNormal // Revert to allow correction
-			// Optionally, set errors on specific fields
-			taskIDField := m.form.GetGroup(0).GetField(addDepFormKeyTaskID)
-			dependsOnField := m.form.GetGroup(0).GetField(addDepFormKeyDependsOn)
-			if taskIDField != nil { taskIDField.Error(fmt.Errorf("cannot be the same as 'Depends On' ID")) }
-			if dependsOnField != nil { dependsOnField.Error(fmt.Errorf("cannot be the same as Task ID")) }
+			// Note: Direct field access for error setting is not available in huh v0.7.0
+			// Error handling is managed through form validation state
 			return m, nil
-		} else {
-            // Clear errors if they were previously set and condition is no longer met
-            taskIDField := m.form.GetGroup(0).GetField(addDepFormKeyTaskID)
-			dependsOnField := m.form.GetGroup(0).GetField(addDepFormKeyDependsOn)
-            if taskIDField != nil { taskIDField.Error(nil) }
-			if dependsOnField != nil { dependsOnField.Error(nil) }
-        }
+		}
 
 
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Task ID: %s\n  Depends On ID: %s\n\n(Simulating command execution...)",
-			m.FilePath, m.TaskID, m.DependsOn)
+		m.statusMsg = "Executing add-dependency command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualAddDependencyCommand()
-		return m, nil
+		return m, m.executeAddDependencyCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -141,6 +130,14 @@ func (m *AddDependencyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case addDependencyCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -175,7 +172,9 @@ func (m *AddDependencyModel) View() string {
 
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
-		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing dependency... Press Ctrl+C to quit."))
+		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -199,6 +198,19 @@ func (m *AddDependencyModel) GetFormValues() (map[string]interface{}, error) {
 		addDepFormKeyTaskID:    m.TaskID,
 		addDepFormKeyDependsOn: m.DependsOn,
 	}, nil
+}
+
+// addDependencyCompleteMsg is sent when the command execution is complete
+type addDependencyCompleteMsg struct {
+	result CLIResult
+}
+
+// executeAddDependencyCommand executes the actual add-dependency CLI command
+func (m *AddDependencyModel) executeAddDependencyCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.AddDependency(m.FilePath, m.TaskID, m.DependsOn)
+		return addDependencyCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &AddDependencyModel{}

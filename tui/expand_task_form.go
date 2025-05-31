@@ -110,7 +110,6 @@ func NewExpandTaskForm() *ExpandTaskModel {
 				Key(expandTaskFormKeyPrompt).
 				Title("Additional Context (Optional)").
 				Description("Provide additional context or specific instructions for subtask generation.").
-				Prompt("💬 ").
 				CharLimit(1000).
 				Value(&m.Prompt),
 
@@ -161,19 +160,9 @@ func (m *ExpandTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.form.State == huh.StateCompleted { // Prevent completion if invalid
 			m.form.State = huh.StateNormal
 		}
-		// Set error on the TaskID field
-		idField := m.form.GetGroup(0).GetField(expandTaskFormKeyID)
-		if idField != nil {
-			idField.Error(fmt.Errorf("task ID is required if 'Expand All' is No"))
-		}
-	} else if m.form.GetBool(expandTaskFormKeyAll) && m.form.GetString(expandTaskFormKeyID) != "" {
-        // If 'AllPending' is true, TaskID should ideally be empty or ignored.
-        // Clear error if previously set.
-        idField := m.form.GetGroup(0).GetField(expandTaskFormKeyID)
-		if idField != nil {
-            idField.Error(nil) // Clear error
-        }
-    }
+		// Note: Direct field access for validation is not available in huh v0.7.0
+		// We'll handle validation through the form's overall validation state
+	}
 
 
 	if m.form.State == huh.StateCompleted {
@@ -191,22 +180,15 @@ func (m *ExpandTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil {
 			m.statusMsg = fmt.Sprintf("Error parsing number of subtasks: %v. Please correct.", err)
 			m.form.State = huh.StateNormal
-			if group := m.form.GetGroup(1); group != nil {
-				if field := group.GetField(expandTaskFormKeyNum); field != nil {
-					field.Error(fmt.Errorf("invalid number: %s", numSubtasksStrValue))
-				}
-			}
+			// Note: Direct field access for error setting is not available in huh v0.7.0
+			// Error handling is managed through form validation state
 			return m, nil
 		}
 		m.NumSubtasks = parsedNumSubtasks
 
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n"+
-			"  File: %s\n  Task ID: %s\n  Expand All: %t\n  Num Subtasks: %d\n"+
-			"  Use Research: %t\n  Prompt: %s\n  Force Expand: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.TaskID, m.AllPending, m.NumSubtasks, m.UseResearch, m.Prompt, m.ForceExpand)
+		m.statusMsg = "Executing expand-task command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualExpandCommand()
-		return m, nil
+		return m, m.executeExpandTaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -215,6 +197,14 @@ func (m *ExpandTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case expandTaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -247,6 +237,8 @@ func (m *ExpandTaskModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -267,6 +259,29 @@ func (m *ExpandTaskModel) GetFormValues() (map[string]interface{}, error) {
 		expandTaskFormKeyPrompt:   m.Prompt,
 		expandTaskFormKeyForce:    m.ForceExpand,
 	}, nil
+}
+
+// expandTaskCompleteMsg is sent when the command execution is complete
+type expandTaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeExpandTaskCommand executes the actual expand-task CLI command
+func (m *ExpandTaskModel) executeExpandTaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		// Check if we should expand all pending tasks or a specific task
+		if m.AllPending {
+			// For "all pending", we would need a different CLI method or empty taskID
+			// Since CLI expects a specific taskID, we'll return an error for now
+			return expandTaskCompleteMsg{result: CLIResult{
+				Success: false,
+				Error:   "Expanding all pending tasks is not yet supported via CLI",
+			}}
+		}
+		
+		result := cliExecutor.ExpandTask(m.FilePath, m.TaskID, m.Prompt, m.NumSubtasks, m.UseResearch)
+		return expandTaskCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &ExpandTaskModel{}

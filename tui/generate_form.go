@@ -13,6 +13,7 @@ import (
 const (
 	generateFormKeyFile   = "file"
 	generateFormKeyOutput = "output" // Directory path
+	generateFormKeyForce  = "force"
 )
 
 // GenerateFilesModel holds the state for the generate (task files) form.
@@ -26,11 +27,14 @@ type GenerateFilesModel struct {
 	// Form values
 	FilePath      string // Path to the input tasks file
 	OutputDirectory string // Path to the output directory
+	Force         bool   // Force overwrite existing files
 }
 
 // NewGenerateFilesForm creates a new form for the generate command.
 func NewGenerateFilesForm() *GenerateFilesModel {
-	m := &GenerateFilesModel{}
+	m := &GenerateFilesModel{
+		Force: false, // Default to not force overwrite
+	}
 
 	m.form = huh.NewForm(
 		huh.NewGroup(
@@ -61,6 +65,14 @@ func NewGenerateFilesForm() *GenerateFilesModel {
 					return nil
 				}).
 				Value(&m.OutputDirectory),
+
+			huh.NewConfirm().
+				Key(generateFormKeyForce).
+				Title("Force Overwrite").
+				Description("Overwrite existing task files if they exist?").
+				Affirmative("Yes").
+				Negative("No").
+				Value(&m.Force),
 		),
 	).WithTheme(huh.ThemeDracula())
 
@@ -97,11 +109,9 @@ func (m *GenerateFilesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	if m.form.State == huh.StateCompleted {
-		m.status = fmt.Sprintf("Form complete. Values:\n  Tasks File: %s\n  Output Directory: %s\n\n(Simulating command execution...)",
-			m.FilePath, m.OutputDirectory)
+		m.status = "Executing generate-task-files command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualGenerateCommand()
-		return m, nil
+		return m, m.executeGenerateTaskFilesCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -110,6 +120,14 @@ func (m *GenerateFilesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case generateTaskFilesCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.status = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.status = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -145,6 +163,8 @@ func (m *GenerateFilesModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.status, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -163,7 +183,21 @@ func (m *GenerateFilesModel) GetFormValues() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		generateFormKeyFile:   m.FilePath,
 		generateFormKeyOutput: m.OutputDirectory,
+		generateFormKeyForce:  m.Force,
 	}, nil
+}
+
+// generateTaskFilesCompleteMsg is sent when the command execution is complete
+type generateTaskFilesCompleteMsg struct {
+	result CLIResult
+}
+
+// executeGenerateTaskFilesCommand executes the actual generate-task-files CLI command
+func (m *GenerateFilesModel) executeGenerateTaskFilesCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.GenerateTaskFiles(m.FilePath, m.OutputDirectory, m.Force)
+		return generateTaskFilesCompleteMsg{result: result}
+	}
 }
 
 // Ensure GenerateFilesModel implements tea.Model.

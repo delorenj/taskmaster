@@ -77,7 +77,6 @@ func NewUpdateSubtaskForm() *UpdateSubtaskModel {
 				Key(updateSubtaskFormKeyPrompt).
 				Title("Update Prompt").
 				Description("Explain the information to add or changes for this subtask.").
-				Prompt("💬 ").
 				CharLimit(500). // Optional
 				Validate(func(s string) error {
 					if s == "" {
@@ -131,11 +130,9 @@ func (m *UpdateSubtaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	if m.form.State == huh.StateCompleted {
-		m.status = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Subtask ID: %s\n  Prompt: %s\n  Research: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.SubtaskID, m.Prompt, m.Research)
+		m.status = "Executing update-subtask command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualUpdateSubtaskCommand()
-		return m, nil
+		return m, m.executeUpdateSubtaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -144,6 +141,14 @@ func (m *UpdateSubtaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case updateSubtaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.status = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.status = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -179,6 +184,8 @@ func (m *UpdateSubtaskModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.status, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -200,6 +207,31 @@ func (m *UpdateSubtaskModel) GetFormValues() (map[string]interface{}, error) {
 		updateSubtaskFormKeyPrompt:   m.Prompt,
 		updateSubtaskFormKeyResearch: m.Research,
 	}, nil
+}
+
+// updateSubtaskCompleteMsg is sent when the command execution is complete
+type updateSubtaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeUpdateSubtaskCommand executes the actual update-subtask CLI command
+// Parses SubtaskID (e.g., "1.2") into taskID and subtaskID
+func (m *UpdateSubtaskModel) executeUpdateSubtaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		// Parse subtask ID like "1.2" into taskID="1" and subtaskID="2"
+		parts := strings.Split(m.SubtaskID, ".")
+		if len(parts) < 2 {
+			return updateSubtaskCompleteMsg{result: CLIResult{
+				Success: false,
+				Error:   "Invalid subtask ID format. Expected format like '1.2'",
+			}}
+		}
+		taskID := parts[0]
+		subtaskID := strings.Join(parts[1:], ".") // Handle nested subtasks like "1.2.3"
+		
+		result := cliExecutor.UpdateSubtask(m.FilePath, taskID, subtaskID, m.Prompt, m.Research)
+		return updateSubtaskCompleteMsg{result: result}
+	}
 }
 
 // Ensure UpdateSubtaskModel implements tea.Model.

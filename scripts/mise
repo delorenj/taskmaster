@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script sets up the mise environment for Task Master
+
+# Check if mise is installed
+if ! command -v mise &> /dev/null; then
+    echo "mise is not installed. Installing mise..."
+    curl https://mise.run | sh
+fi
+
+# Create .mise.toml if it doesn't exist
+if [ ! -f .mise.toml ]; then
+    echo "Creating .mise.toml file..."
+    cat > .mise.toml << EOF
+[tools]
+node = "18"
+npm = "latest"
+
+[env]
+PATH = "{\$PATH}:node_modules/.bin"
+EOF
+    echo ".mise.toml created successfully!"
+fi
+
+# Install node and npm using mise
+echo "Setting up node and npm with mise..."
+mise install
+
+# Install task-master-ai if not already installed
+if ! npm list -g task-master-ai &> /dev/null; then
+    echo "Installing task-master-ai globally..."
+    npm install -g task-master-ai
+fi
+
+echo "Environment setup complete!"
+echo "Run 'mise shell' to activate the environment."

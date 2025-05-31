@@ -103,19 +103,11 @@ func (m *ClearSubtasksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	allTasksSelected := m.form.GetBool(clearSubtasksFormKeyAll)
 	taskIDsProvided := m.form.GetString(clearSubtasksFormKeyIDs) != ""
 
-	idField := m.form.GetGroup(0).GetField(clearSubtasksFormKeyIDs) // Assuming IDs field is in the first group
-
+	// Note: Direct field access for validation is not available in huh v0.7.0
+	// We'll handle validation through the form's overall validation state
 	if !allTasksSelected && !taskIDsProvided {
-		if idField != nil { idField.Error(fmt.Errorf("task ID(s) are required if 'Clear All' is No")) }
 		if m.form.State == huh.StateCompleted { m.form.State = huh.StateNormal } // Prevent completion
-	} else if allTasksSelected && taskIDsProvided {
-		// Optionally, you might want to warn or clear TaskIDs if AllTasks is selected
-		// For now, just clear any error on the ID field if AllTasks is selected
-		if idField != nil { idField.Error(nil) }
-	} else {
-        // Clear error if conditions are met
-        if idField != nil { idField.Error(nil) }
-    }
+	}
 
 
 	if m.form.State == huh.StateCompleted {
@@ -126,11 +118,9 @@ func (m *ClearSubtasksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Task IDs: %s\n  Clear All: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.TaskIDs, m.AllTasks)
+		m.statusMsg = "Executing clear-subtasks command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualClearSubtasksCommand()
-		return m, nil
+		return m, m.executeClearSubtasksCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -139,6 +129,14 @@ func (m *ClearSubtasksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case clearSubtasksCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -171,6 +169,8 @@ func (m *ClearSubtasksModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -192,6 +192,61 @@ func (m *ClearSubtasksModel) GetFormValues() (map[string]interface{}, error) {
 		clearSubtasksFormKeyIDs:  taskIDsForCmd,
 		clearSubtasksFormKeyAll:  m.AllTasks,
 	}, nil
+}
+
+// clearSubtasksCompleteMsg is sent when the command execution is complete
+type clearSubtasksCompleteMsg struct {
+	result CLIResult
+}
+
+// executeClearSubtasksCommand executes the actual clear-subtasks CLI command
+// The CLI method expects a single taskID, so we'll handle multiple IDs by calling it for each one
+func (m *ClearSubtasksModel) executeClearSubtasksCommand() tea.Cmd {
+	return func() tea.Msg {
+		if m.AllTasks {
+			// For "all tasks", we would need a different approach
+			// Since CLI expects a specific taskID, we'll return an error for now
+			return clearSubtasksCompleteMsg{result: CLIResult{
+				Success: false,
+				Error:   "Clearing subtasks for all tasks is not yet supported via CLI",
+			}}
+		}
+		
+		// Parse task IDs from comma-separated string
+		taskIDs := strings.Split(m.TaskIDs, ",")
+		var results []string
+		var hasError bool
+		var lastError string
+		
+		for _, taskID := range taskIDs {
+			trimmedID := strings.TrimSpace(taskID)
+			if trimmedID == "" {
+				continue
+			}
+			
+			result := cliExecutor.ClearSubtasks(m.FilePath, trimmedID)
+			if result.Success {
+				results = append(results, fmt.Sprintf("✅ Task %s: %s", trimmedID, result.Output))
+			} else {
+				hasError = true
+				lastError = result.Error
+				results = append(results, fmt.Sprintf("❌ Task %s: %s", trimmedID, result.Error))
+			}
+		}
+		
+		if len(results) == 0 {
+			return clearSubtasksCompleteMsg{result: CLIResult{
+				Success: false,
+				Error:   "No valid task IDs provided",
+			}}
+		}
+		
+		return clearSubtasksCompleteMsg{result: CLIResult{
+			Success: !hasError,
+			Error:   lastError,
+			Output:  strings.Join(results, "\n"),
+		}}
+	}
 }
 
 var _ tea.Model = &ClearSubtasksModel{}

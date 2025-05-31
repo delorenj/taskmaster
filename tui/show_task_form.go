@@ -116,12 +116,9 @@ func (m *ShowTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	if m.form.State == huh.StateCompleted {
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Task ID: %s\n  Subtask Status Filter: %s\n\n(Simulating 'show task' operation...)",
-			m.FilePath, m.TaskID, m.StatusFilter)
-		m.isProcessing = true // Simulate that an action is being taken
-		// TODO: return m, m.executeActualShowTaskCommand()
-		// This command would typically find and display the specified task and its subtasks.
-		return m, nil
+		m.statusMsg = "Executing show-task command..."
+		m.isProcessing = true
+		return m, m.executeShowTaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -130,6 +127,14 @@ func (m *ShowTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case showTaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -164,7 +169,9 @@ func (m *ShowTaskModel) View() string {
 
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
-		viewBuilder.WriteString(helpStyle.Render("\n\nFetching task details... Press Ctrl+C to quit."))
+		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -185,6 +192,20 @@ func (m *ShowTaskModel) GetFormValues() (map[string]interface{}, error) {
 		showTaskFormKeyID:           m.TaskID,
 		showTaskFormKeyStatusFilter: m.StatusFilter,
 	}, nil
+}
+
+// showTaskCompleteMsg is sent when the command execution is complete
+type showTaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeShowTaskCommand executes the actual show-task CLI command
+// Note: The CLI doesn't support status filtering for subtasks, so we ignore the StatusFilter field
+func (m *ShowTaskModel) executeShowTaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.ShowTask(m.FilePath, m.TaskID)
+		return showTaskCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &ShowTaskModel{}
