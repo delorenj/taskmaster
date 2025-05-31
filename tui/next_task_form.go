@@ -79,12 +79,9 @@ func (m *NextTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	if m.form.State == huh.StateCompleted {
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n  File: %s\n\n(Simulating 'next task' lookup...)", m.FilePath)
-		m.isProcessing = true // Simulate that an action is being taken
-		// TODO: return m, m.executeActualNextTaskCommand()
-		// This command would typically find and display the next task,
-		// or indicate if no task is pending.
-		return m, nil
+		m.statusMsg = "Executing next-task command..."
+		m.isProcessing = true
+		return m, m.executeNextTaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -93,6 +90,14 @@ func (m *NextTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case nextTaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -127,7 +132,9 @@ func (m *NextTaskModel) View() string {
 
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
-		viewBuilder.WriteString(helpStyle.Render("\n\nLooking for next task... Press Ctrl+C to quit."))
+		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -146,6 +153,19 @@ func (m *NextTaskModel) GetFormValues() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		nextTaskFormKeyFile: m.FilePath,
 	}, nil
+}
+
+// nextTaskCompleteMsg is sent when the command execution is complete
+type nextTaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeNextTaskCommand executes the actual next-task CLI command
+func (m *NextTaskModel) executeNextTaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.NextTask(m.FilePath)
+		return nextTaskCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &NextTaskModel{}

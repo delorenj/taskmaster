@@ -123,7 +123,6 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
-	var cmd tea.Cmd
 
 	// Handle specific messages first
 	switch msg := msg.(type) {
@@ -294,9 +293,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updatedSubModel, subCmd := m.addDependencyModel.Update(msg)
 		if adM, ok := updatedSubModel.(*AddDependencyModel); ok { m.addDependencyModel = adM } else { return m.Update(updatedSubModel) }
 		cmds = append(cmds, subCmd)
-			}
 		}
-	}
+
 	// Global key bindings
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		switch keyMsg.String() {

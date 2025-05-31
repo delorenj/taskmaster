@@ -142,21 +142,15 @@ func (m *AnalyzeComplexityModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil {
 			m.statusMsg = fmt.Sprintf("Error parsing minimum complexity: %v. Please correct.", err)
 			m.form.State = huh.StateNormal
-			if group := m.form.GetGroup(1); group != nil { // Assuming threshold is in the second group
-				if field := group.GetField(analyzeComplexityFormKeyThreshold); field != nil {
-					field.Error(fmt.Errorf("invalid number: %s", minComplexityStrValue))
-				}
-			}
+			// Note: Direct field access for error setting is not available in huh v0.7.0
+			// Error handling is managed through form validation state
 			return m, nil
 		}
 		m.MinComplexity = parsedMinComplexity
 
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n"+
-			"  File: %s\n  Output: %s\n  Model: %s\n  Threshold: %d\n  Research: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.OutputPath, m.LLMModel, m.MinComplexity, m.UseResearch)
+		m.statusMsg = "Executing analyze-complexity command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualAnalyzeComplexityCommand()
-		return m, nil
+		return m, m.executeAnalyzeComplexityCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -165,6 +159,14 @@ func (m *AnalyzeComplexityModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case analyzeComplexityCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -197,6 +199,8 @@ func (m *AnalyzeComplexityModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -215,6 +219,19 @@ func (m *AnalyzeComplexityModel) GetFormValues() (map[string]interface{}, error)
 		analyzeComplexityFormKeyThreshold: m.MinComplexity,
 		analyzeComplexityFormKeyResearch:  m.UseResearch,
 	}, nil
+}
+
+// analyzeComplexityCompleteMsg is sent when the command execution is complete
+type analyzeComplexityCompleteMsg struct {
+	result CLIResult
+}
+
+// executeAnalyzeComplexityCommand executes the actual analyze-complexity CLI command
+func (m *AnalyzeComplexityModel) executeAnalyzeComplexityCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.AnalyzeComplexity(m.FilePath, m.MinComplexity, m.OutputPath)
+		return analyzeComplexityCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &AnalyzeComplexityModel{}

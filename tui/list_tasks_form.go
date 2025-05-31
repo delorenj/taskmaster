@@ -120,11 +120,9 @@ func (m *ListTasksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	if m.form.State == huh.StateCompleted {
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n  File: %s\n  Status Filter: %s\n  With Subtasks: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.StatusFilter, m.WithSubtasks)
+		m.statusMsg = "Executing list-tasks command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualListCommand()
-		return m, nil
+		return m, m.executeListTasksCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -133,6 +131,14 @@ func (m *ListTasksModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case listTasksCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -168,6 +174,8 @@ func (m *ListTasksModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.statusMsg, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -188,6 +196,26 @@ func (m *ListTasksModel) GetFormValues() (map[string]interface{}, error) {
 		listTasksFormKeyStatusFilter: m.StatusFilter,
 		listTasksFormKeyWithSubtasks: m.WithSubtasks,
 	}, nil
+}
+
+// listTasksCompleteMsg is sent when the command execution is complete
+type listTasksCompleteMsg struct {
+	result CLIResult
+}
+
+// executeListTasksCommand executes the actual list-tasks CLI command
+func (m *ListTasksModel) executeListTasksCommand() tea.Cmd {
+	return func() tea.Msg {
+		// Convert FilterStatus to string for CLI
+		var statusFilter string
+		if m.StatusFilter != FilterStatusNone {
+			statusFilter = string(m.StatusFilter)
+		}
+		
+		// CLI doesn't support priority filter in this form, so pass empty string
+		result := cliExecutor.ListTasks(m.FilePath, statusFilter, "", m.WithSubtasks)
+		return listTasksCompleteMsg{result: result}
+	}
 }
 
 // Ensure ListTasksModel implements tea.Model.

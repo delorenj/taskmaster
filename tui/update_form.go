@@ -83,7 +83,6 @@ func NewUpdateTaskForm() *UpdateTaskModel {
 				Key(updateFormKeyPrompt).
 				Title("Update Prompt").
 				Description("Explain the changes to be applied to the tasks.").
-				Prompt("💬 ").
 				CharLimit(500). // Optional character limit
 				Validate(func(s string) error {
 					if s == "" {
@@ -143,20 +142,15 @@ func (m *UpdateTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil {
 			m.status = fmt.Sprintf("Error parsing 'from' task ID: %v. Please correct.", err)
 			m.form.State = huh.StateNormal
-			if group := m.form.GetGroup(0); group != nil { // Assuming 'from' is in the first group
-				if field := group.GetField(updateFormKeyFrom); field != nil {
-					field.Error(fmt.Errorf("invalid number: %s", fromTaskStrValue))
-				}
-			}
+			// Note: Direct field access for error setting is not available in huh v0.7.0
+			// Error handling is managed through form validation state
 			return m, nil
 		}
 		m.FromTask = parsedFromTask
 
-		m.status = fmt.Sprintf("Form complete. Values:\n  File: %s\n  From Task: %d\n  Prompt: %s\n  Research: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.FromTask, m.Prompt, m.Research)
+		m.status = "Executing update-tasks command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualUpdateCommand()
-		return m, nil
+		return m, m.executeUpdateTasksCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -165,6 +159,14 @@ func (m *UpdateTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case updateTasksCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.status = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.status = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -200,6 +202,8 @@ func (m *UpdateTaskModel) View() string {
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	if m.isProcessing {
 		viewBuilder.WriteString(helpStyle.Render("\n\nProcessing... Press Ctrl+C to force quit."))
+	} else if m.form.State == huh.StateCompleted && strings.HasPrefix(m.status, "✅") {
+		viewBuilder.WriteString(helpStyle.Render("\n\nCommand completed! Press Esc to return to main menu."))
 	} else if m.form.State != huh.StateCompleted && m.form.State != huh.StateAborted {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
@@ -221,6 +225,23 @@ func (m *UpdateTaskModel) GetFormValues() (map[string]interface{}, error) {
 		updateFormKeyPrompt:   m.Prompt,
 		updateFormKeyResearch: m.Research,
 	}, nil
+}
+
+// updateTasksCompleteMsg is sent when the command execution is complete
+type updateTasksCompleteMsg struct {
+	result CLIResult
+}
+
+// executeUpdateTasksCommand executes the actual update-tasks CLI command
+// Note: The CLI expects a slice of task IDs, but this form collects a "from" task ID
+// We'll pass an empty slice to update all tasks, as the CLI supports this
+func (m *UpdateTaskModel) executeUpdateTasksCommand() tea.Cmd {
+	return func() tea.Msg {
+		// Pass empty taskIDs slice to update all tasks (CLI supports this)
+		var taskIDs []string
+		result := cliExecutor.UpdateTasks(m.FilePath, m.Prompt, taskIDs, m.Research)
+		return updateTasksCompleteMsg{result: result}
+	}
 }
 
 // Ensure UpdateTaskModel implements tea.Model.

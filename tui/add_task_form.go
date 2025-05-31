@@ -96,7 +96,6 @@ func NewAddTaskForm() *AddTaskModel {
 				Key(addTaskFormKeyPrompt).
 				Title("AI Prompt for Task (Optional)").
 				Description("Describe the task for AI generation. Leave blank for manual entry of title/description etc.").
-				Prompt("✨ ").
 				CharLimit(1000).
 				Value(&m.Prompt),
 		).WithHideFunc(func() bool { return false }), // Always show for now
@@ -113,7 +112,6 @@ func NewAddTaskForm() *AddTaskModel {
 				Key(addTaskFormKeyDescription).
 				Title("Task Description (Manual)").
 				Description("Detailed description of the task.").
-				Prompt("📝 ").
 				CharLimit(2000).
 				Value(&m.Description),
 			huh.NewText().
@@ -126,7 +124,7 @@ func NewAddTaskForm() *AddTaskModel {
 				Title("Test Strategy (Manual, Optional)").
 				Description("How to test this task.").
 				Value(&m.TestStrategy),
-		).WithTitle("Manual Task Details (if AI Prompt is empty or for refinement)"),
+		).Title("Manual Task Details (if AI Prompt is empty or for refinement)"),
 
 		// Group for Common Task Attributes
 		huh.NewGroup(
@@ -163,7 +161,7 @@ func NewAddTaskForm() *AddTaskModel {
 				Affirmative("Yes").
 				Negative("No").
 				Value(&m.UseResearch),
-		).WithTitle("Task Attributes"),
+		).Title("Task Attributes"),
 	).WithTheme(huh.ThemeDracula())
 
 	return m
@@ -199,13 +197,11 @@ func (m *AddTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	promptIsEmpty := m.form.GetString(addTaskFormKeyPrompt) == ""
 	titleIsEmpty := m.form.GetString(addTaskFormKeyTitle) == ""
 
-	titleField := m.form.GetGroup(2).GetField(addTaskFormKeyTitle) // Assuming title is in 3rd group (index 2)
-
+	// Note: Direct field access for validation is not available in huh v0.7.0
+	// We'll handle validation through the form's overall validation state
 	if promptIsEmpty && titleIsEmpty {
-		if titleField != nil { titleField.Error(fmt.Errorf("task Title is required if AI Prompt is empty")) }
+		// Set form state to prevent completion until condition is met
 		if m.form.State == huh.StateCompleted { m.form.State = huh.StateNormal }
-	} else {
-		if titleField != nil { titleField.Error(nil) } // Clear error if condition met
 	}
 
 
@@ -217,15 +213,9 @@ func (m *AddTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		m.statusMsg = fmt.Sprintf("Form complete. Values:\n"+
-			"  File: %s\n  AI Prompt: %s\n  Title: %s\n  Description: %s\n"+
-			"  Details: %s\n  Test Strategy: %s\n  Dependencies: %s\n"+
-			"  Priority: %s\n  Type: %s\n  Research: %t\n\n(Simulating command execution...)",
-			m.FilePath, m.Prompt, m.Title, m.Description, m.Details, m.TestStrategy,
-			m.Dependencies, m.Priority, m.Type, m.UseResearch)
+		m.statusMsg = "Executing add-task command..."
 		m.isProcessing = true
-		// TODO: return m, m.executeActualAddTaskCommand()
-		return m, nil
+		return m, m.executeAddTaskCommand()
 	}
 
 	if m.form.State == huh.StateAborted {
@@ -234,6 +224,14 @@ func (m *AddTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case addTaskCompleteMsg:
+		m.isProcessing = false
+		if msg.result.Success {
+			m.statusMsg = fmt.Sprintf("✅ Success!\n\n%s", msg.result.Output)
+		} else {
+			m.statusMsg = fmt.Sprintf("❌ Error: %s\n\n%s", msg.result.Error, msg.result.Output)
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -270,6 +268,30 @@ func (m *AddTaskModel) View() string {
 		viewBuilder.WriteString(helpStyle.Render("\n\nPress Esc to return to main menu, Ctrl+C to quit application."))
 	}
 	return lipgloss.NewStyle().Width(m.width).Padding(1, 2).Render(viewBuilder.String())
+}
+
+// addTaskCompleteMsg is sent when the command execution is complete
+type addTaskCompleteMsg struct {
+	result CLIResult
+}
+
+// executeAddTaskCommand executes the actual add-task CLI command
+func (m *AddTaskModel) executeAddTaskCommand() tea.Cmd {
+	return func() tea.Msg {
+		result := cliExecutor.AddTask(
+			m.FilePath,
+			m.Prompt,
+			m.Title,
+			m.Description,
+			m.Details,
+			m.TestStrategy,
+			m.Dependencies,
+			string(m.Priority),
+			string(m.Type),
+			m.UseResearch,
+		)
+		return addTaskCompleteMsg{result: result}
+	}
 }
 
 var _ tea.Model = &AddTaskModel{}
