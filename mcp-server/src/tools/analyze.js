@@ -78,7 +78,7 @@ export function registerAnalyzeProjectComplexityTool(server) {
 					? path.resolve(args.projectRoot, args.output)
 					: path.resolve(
 							args.projectRoot,
-							'scripts',
+							'tasks',
 							'task-complexity-report.json'
 						);
 
