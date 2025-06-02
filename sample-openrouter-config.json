@@ -1,0 +1,32 @@
+{
+  "models": {
+    "main": {
+      "provider": "openrouter",
+      "modelId": "deepseek/deepseek-chat-v3-0324",
+      "maxTokens": 64000,
+      "temperature": 0.2
+    },
+    "research": {
+      "provider": "openrouter",
+      "modelId": "google/gemini-2.0-flash-001",
+      "maxTokens": 100000,
+      "temperature": 0.1
+    },
+    "fallback": {
+      "provider": "openrouter",
+      "modelId": "mistralai/mistral-small-3.1-24b-instruct",
+      "maxTokens": 128000,
+      "temperature": 0.2
+    }
+  },
+  "global": {
+    "logLevel": "info",
+    "debug": false,
+    "defaultSubtasks": 5,
+    "defaultPriority": "medium",
+    "projectName": "YourProject",
+    "ollamaBaseUrl": "http://localhost:11434/api",
+    "tasksPath": "./tasks",
+    "azureOpenaiBaseUrl": "https://your-endpoint.openai.azure.com/"
+  }
+}
