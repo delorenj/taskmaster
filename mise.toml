@@ -1,2 +1,25 @@
 [tools]
 go = "latest"
+
+[tasks.install-tui-app]
+description = "Install TUI Go app globally"
+run = """
+go install github.com/charmbracelet/gum@latest
+echo "✅ Installed gum TUI toolkit globally"
+"""
+
+[tasks.install-taskmaster-tui]
+description = "Install the local taskmaster TUI app (to ~/.local/bin by default)"
+run = """
+cd ./tui
+go build -o taskmaster-tui
+mkdir -p ~/.local/bin
+
+if [[ "$1" == "--global" ]]; then
+  sudo cp taskmaster-tui /usr/local/bin/
+  echo "✅ Installed taskmaster-tui globally to /usr/local/bin/"
+else
+  cp taskmaster-tui ~/.local/bin/
+  echo "✅ Installed taskmaster-tui to ~/.local/bin/"
+fi
+"""

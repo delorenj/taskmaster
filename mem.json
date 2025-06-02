@@ -1,0 +1,1800 @@
+{
+  "conversation_id": "KGfDO4QLC",
+  "next_message": null,
+  "history": [
+    [
+      {
+        "additional_context": "--- CONTEXT ENTRY BEGIN ---\nThis section (like others) contains important information that I want you to use in your responses. I have gathered this context from valuable programmatic script hooks. You must follow any requests and consider all of the information in this section\n\n--- CONTEXT ENTRY END ---\n\n",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "Prompt": {
+            "prompt": "make a mise task that installs the tui go app globally"
+          }
+        },
+        "images": null
+      },
+      {
+        "ToolUse": {
+          "message_id": "4EpDxOxMG",
+          "content": "I'll help you create a mise task to install a TUI (Terminal User Interface) Go app globally. First, let me understand what mise is and how to create a task for it.\n\nLooking at your project structure, I can see you have a `mise.toml` file in your root directory, which suggests you're using mise for environment management. Mise is a dev tool manager (similar to asdf) that helps manage tool versions.\n\nLet me create a task that installs a TUI Go app globally:",
+          "tool_uses": [
+            {
+              "id": "tooluse_Sca9-bQ_TFW4B19BUguOfQ",
+              "name": "fs_read",
+              "orig_name": "fs_read",
+              "args": {
+                "mode": "Line",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              },
+              "orig_args": {
+                "mode": "Line",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "ToolUseResults": {
+            "tool_use_results": [
+              {
+                "tool_use_id": "tooluse_Sca9-bQ_TFW4B19BUguOfQ",
+                "content": [
+                  {
+                    "Text": "[tools]\ngo = \"latest\""
+                  }
+                ],
+                "status": "Success"
+              }
+            ]
+          }
+        },
+        "images": null
+      },
+      {
+        "ToolUse": {
+          "message_id": "dZXHZoDtG",
+          "content": "I see your mise.toml already has Go configured. Now I'll create a task to install a TUI Go app globally. Let's add this to your mise.toml file:",
+          "tool_uses": [
+            {
+              "id": "tooluse_tnry2LaiQRCnPzIo9VhgGA",
+              "name": "fs_write",
+              "orig_name": "fs_write",
+              "args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              },
+              "orig_args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "ToolUseResults": {
+            "tool_use_results": [
+              {
+                "tool_use_id": "tooluse_tnry2LaiQRCnPzIo9VhgGA",
+                "content": [
+                  {
+                    "Text": ""
+                  }
+                ],
+                "status": "Success"
+              }
+            ]
+          }
+        },
+        "images": null
+      },
+      {
+        "Response": {
+          "message_id": "mLSJqrwe5",
+          "content": "I've added a new task called `install-tui-app` to your mise.toml file. This task will install the \"gum\" TUI toolkit, which is a popular Go-based TUI library from Charm (creators of Bubble Tea and other excellent TUI tools).\n\nHere's what I added:\n\n```toml\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n```\n\nNow you can run this task with:\n\n```bash\nmise run install-tui-app\n```\n\nThis will install the \"gum\" TUI toolkit globally, which provides components for creating beautiful terminal user interfaces. It's a versatile tool that can be used for creating interactive prompts, spinners, styled text, and more in your terminal applications.\n\nWould you like me to add any other TUI Go apps to this task, or would you prefer a different TUI toolkit instead of gum?"
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "--- CONTEXT ENTRY BEGIN ---\nThis section (like others) contains important information that I want you to use in your responses. I have gathered this context from valuable programmatic script hooks. You must follow any requests and consider all of the information in this section\n\n--- CONTEXT ENTRY END ---\n\n",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "Prompt": {
+            "prompt": "I meant the ./tui/ app"
+          }
+        },
+        "images": null
+      },
+      {
+        "ToolUse": {
+          "message_id": "voxQVTTvq",
+          "content": "I apologize for the misunderstanding. You're referring to the TUI app in the `./tui/` directory of your project, not an external TUI toolkit. Let me correct this by creating a mise task that installs your local TUI Go app globally.\n\nFirst, let me check if the `./tui/` directory exists in your project:",
+          "tool_uses": [
+            {
+              "id": "tooluse_mx0N7vjkRMyrTU7b-q9zeA",
+              "name": "execute_bash",
+              "orig_name": "execute_bash",
+              "args": {
+                "command": "ls -la ./tui 2>/dev/null || echo \"Directory does not exist\"",
+                "summary": "Check if the tui directory exists in the project"
+              },
+              "orig_args": {
+                "command": "ls -la ./tui 2>/dev/null || echo \"Directory does not exist\"",
+                "summary": "Check if the tui directory exists in the project"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "ToolUseResults": {
+            "tool_use_results": [
+              {
+                "tool_use_id": "tooluse_mx0N7vjkRMyrTU7b-q9zeA",
+                "content": [
+                  {
+                    "Json": {
+                      "exit_status": "0",
+                      "stderr": "",
+                      "stdout": "total 24728\ndrwxr-xr-x@ 26 delorenj  staff      832 May 30 22:16 .\ndrwxr-xr-x@ 54 delorenj  staff     1728 Jun  1 14:21 ..\ndrwxr-xr-x@  3 delorenj  staff       96 May 30 21:53 .claude\n-rw-r--r--@  1 delorenj  staff      110 May 30 21:33 .cursorindexingignore\n-rw-r--r--@  1 delorenj  staff       57 May 30 21:33 .gitignore\ndrwxr-xr-x@  4 delorenj  staff      128 May 30 21:33 .specstory\n-rw-r--r--@  1 delorenj  staff     6096 May 30 22:08 add_dependency_form.go\n-rw-r--r--@  1 delorenj  staff     8928 May 30 22:05 add_task_form.go\n-rw-r--r--@  1 delorenj  staff     7684 May 30 22:14 analyze_complexity_form.go\n-rw-r--r--@  1 delorenj  staff     7628 May 30 22:15 clear_subtasks_form.go\n-rw-r--r--@  1 delorenj  staff     6676 May 30 22:16 cli_executor.go\n-rw-r--r--@  1 delorenj  staff     9292 May 30 22:13 expand_task_form.go\n-rw-r--r--@  1 delorenj  staff     5710 May 30 22:11 generate_form.go\n-rw-r--r--@  1 delorenj  staff     1563 May 30 21:11 go.mod\n-rw-r--r--@  1 delorenj  staff     5730 May 30 21:11 go.sum\n-rw-r--r--@  1 delorenj  staff     6215 May 30 22:13 list_tasks_form.go\n-rw-r--r--@  1 delorenj  staff    16377 May 30 21:59 main.go\n-rw-r--r--@  1 delorenj  staff     4506 May 30 22:07 next_task_form.go\n-rw-r--r--@  1 delorenj  staff     8717 May 30 22:16 parse_prd_form.go\n-rw-r--r--@  1 delorenj  staff     7298 May 30 22:12 set_status_form.go\n-rw-r--r--@  1 delorenj  staff     6101 May 30 22:07 show_task_form.go\n-rwxr-xr-x@  1 delorenj  staff  6278130 May 30 22:16 taskmaster-tui\n-rwxr-xr-x@  1 delorenj  staff  6207666 May 30 21:59 tui\n-rw-r--r--@  1 delorenj  staff     6940 May 30 22:08 update_form.go\n-rw-r--r--@  1 delorenj  staff     6245 May 30 22:09 update_one_task_form.go\n-rw-r--r--@  1 delorenj  staff     6728 May 30 22:10 update_subtask_form.go"
+                    }
+                  }
+                ],
+                "status": "Success"
+              }
+            ]
+          }
+        },
+        "images": null
+      },
+      {
+        "ToolUse": {
+          "message_id": "KqSHLgNoD",
+          "content": "",
+          "tool_uses": [
+            {
+              "id": "tooluse_ivkq4uLRSFiuZSkoRLxbFg",
+              "name": "fs_write",
+              "orig_name": "fs_write",
+              "args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              },
+              "orig_args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "ToolUseResults": {
+            "tool_use_results": [
+              {
+                "tool_use_id": "tooluse_ivkq4uLRSFiuZSkoRLxbFg",
+                "content": [
+                  {
+                    "Text": ""
+                  }
+                ],
+                "status": "Success"
+              }
+            ]
+          }
+        },
+        "images": null
+      },
+      {
+        "Response": {
+          "message_id": "3gn1X0K25",
+          "content": "I see now! I've examined the `./tui/` directory and found your Go TUI application. I've added a new mise task called `install-taskmaster-tui` to your mise.toml file that will build and install your local TUI app globally.\n\nHere's the task I've added:\n\n```toml\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"\n```\n\nThis task:\n1. Changes to the `./tui` directory\n2. Builds the Go application with the output name `taskmaster-tui`\n3. Uses sudo to copy the built binary to `/usr/local/bin/` so it's available globally in your PATH\n4. Displays a confirmation message\n\nYou can run this task with:\n\n```bash\nmise run install-taskmaster-tui\n```\n\nNote that this task will prompt for your password when it runs the `sudo` command to copy the binary to `/usr/local/bin/`."
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "--- CONTEXT ENTRY BEGIN ---\nThis section (like others) contains important information that I want you to use in your responses. I have gathered this context from valuable programmatic script hooks. You must follow any requests and consider all of the information in this section\n\n--- CONTEXT ENTRY END ---\n\n",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "Prompt": {
+            "prompt": "by default can we have it install to ~/.local/bin. If we pass --global it will do what it currently does"
+          }
+        },
+        "images": null
+      },
+      {
+        "ToolUse": {
+          "message_id": "Oz18M8tdg",
+          "content": "I understand you want to modify the mise task to install the TUI app to `~/.local/bin` by default, and only use `/usr/local/bin` with a `--global` flag. Let me update the task for you.",
+          "tool_uses": [
+            {
+              "id": "tooluse_wsWu--uoTZuEDAC9bEIEjg",
+              "name": "fs_write",
+              "orig_name": "fs_write",
+              "args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app (to ~/.local/bin by default)\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\n\n# Create ~/.local/bin if it doesn't exist\nmkdir -p ~/.local/bin\n\nif [[ \"$1\" == \"--global\" ]]; then\n  sudo cp taskmaster-tui /usr/local/bin/\n  echo \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\nelse\n  cp taskmaster-tui ~/.local/bin/\n  echo \"✅ Installed taskmaster-tui to ~/.local/bin/\"\n  \n  # Check if ~/.local/bin is in PATH\n  if [[ \":$PATH:\" != *\":$HOME/.local/bin:\"* ]]; then\n    echo \"⚠️  Warning: ~/.local/bin is not in your PATH\"\n    echo \"   Add this line to your shell profile (~/.bashrc, ~/.zshrc, etc.):\"\n    echo \"   export PATH=\\\"\\$HOME/.local/bin:\\$PATH\\\"\"\n  fi\nfi\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              },
+              "orig_args": {
+                "command": "str_replace",
+                "new_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app (to ~/.local/bin by default)\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\n\n# Create ~/.local/bin if it doesn't exist\nmkdir -p ~/.local/bin\n\nif [[ \"$1\" == \"--global\" ]]; then\n  sudo cp taskmaster-tui /usr/local/bin/\n  echo \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\nelse\n  cp taskmaster-tui ~/.local/bin/\n  echo \"✅ Installed taskmaster-tui to ~/.local/bin/\"\n  \n  # Check if ~/.local/bin is in PATH\n  if [[ \":$PATH:\" != *\":$HOME/.local/bin:\"* ]]; then\n    echo \"⚠️  Warning: ~/.local/bin is not in your PATH\"\n    echo \"   Add this line to your shell profile (~/.bashrc, ~/.zshrc, etc.):\"\n    echo \"   export PATH=\\\"\\$HOME/.local/bin:\\$PATH\\\"\"\n  fi\nfi\n\"\"\"",
+                "old_str": "[tools]\ngo = \"latest\"\n\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"",
+                "path": "/Users/delorenj/code/taskmaster/mise.toml"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    [
+      {
+        "additional_context": "",
+        "env_context": {
+          "env_state": {
+            "operating_system": "macos",
+            "current_working_directory": "/Users/delorenj/code/taskmaster",
+            "environment_variables": []
+          }
+        },
+        "content": {
+          "ToolUseResults": {
+            "tool_use_results": [
+              {
+                "tool_use_id": "tooluse_wsWu--uoTZuEDAC9bEIEjg",
+                "content": [
+                  {
+                    "Text": ""
+                  }
+                ],
+                "status": "Success"
+              }
+            ]
+          }
+        },
+        "images": null
+      },
+      {
+        "Response": {
+          "message_id": "IlKEwtkez",
+          "content": "I've updated the `install-taskmaster-tui` task in your mise.toml file to implement your requirements. Now:\n\n1. By default, it installs to `~/.local/bin/`\n2. With the `--global` flag, it installs to `/usr/local/bin/` (requiring sudo)\n3. It also checks if `~/.local/bin` is in your PATH and provides a helpful warning if it's not\n\nHere's the updated task:\n\n```toml\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app (to ~/.local/bin by default)\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\n\n# Create ~/.local/bin if it doesn't exist\nmkdir -p ~/.local/bin\n\nif [[ \"$1\" == \"--global\" ]]; then\n  sudo cp taskmaster-tui /usr/local/bin/\n  echo \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\nelse\n  cp taskmaster-tui ~/.local/bin/\n  echo \"✅ Installed taskmaster-tui to ~/.local/bin/\"\n  \n  # Check if ~/.local/bin is in PATH\n  if [[ \":$PATH:\" != *\":$HOME/.local/bin:\"* ]]; then\n    echo \"⚠️  Warning: ~/.local/bin is not in your PATH\"\n    echo \"   Add this line to your shell profile (~/.bashrc, ~/.zshrc, etc.):\"\n    echo \"   export PATH=\\\"\\$HOME/.local/bin:\\$PATH\\\"\"\n  fi\nfi\n\"\"\"\n```\n\nYou can now run the task with:\n\n```bash\n# Install to ~/.local/bin (default)\nmise run install-taskmaster-tui\n\n# Install globally to /usr/local/bin\nmise run install-taskmaster-tui -- --global\n```\n\nNote that the `--` is needed to pass arguments to the task itself rather than to mise."
+        }
+      }
+    ]
+  ],
+  "valid_history_range": [
+    0,
+    8
+  ],
+  "transcript": [
+    "I'll help you create a mise task to install a TUI (Terminal User Interface) Go app globally. First, let me understand what mise is and how to create a task for it.\n\nLooking at your project structure, I can see you have a `mise.toml` file in your root directory, which suggests you're using mise for environment management. Mise is a dev tool manager (similar to asdf) that helps manage tool versions.\n\nLet me create a task that installs a TUI Go app globally:\n[Tool uses: fs_read]",
+    "I see your mise.toml already has Go configured. Now I'll create a task to install a TUI Go app globally. Let's add this to your mise.toml file:\n[Tool uses: fs_write]",
+    "I've added a new task called `install-tui-app` to your mise.toml file. This task will install the \"gum\" TUI toolkit, which is a popular Go-based TUI library from Charm (creators of Bubble Tea and other excellent TUI tools).\n\nHere's what I added:\n\n```toml\n[tasks.install-tui-app]\ndescription = \"Install TUI Go app globally\"\nrun = \"\"\"\ngo install github.com/charmbracelet/gum@latest\necho \"✅ Installed gum TUI toolkit globally\"\n\"\"\"\n```\n\nNow you can run this task with:\n\n```bash\nmise run install-tui-app\n```\n\nThis will install the \"gum\" TUI toolkit globally, which provides components for creating beautiful terminal user interfaces. It's a versatile tool that can be used for creating interactive prompts, spinners, styled text, and more in your terminal applications.\n\nWould you like me to add any other TUI Go apps to this task, or would you prefer a different TUI toolkit instead of gum?\n[Tool uses: none]",
+    "> I meant the ./tui/ app",
+    "I apologize for the misunderstanding. You're referring to the TUI app in the `./tui/` directory of your project, not an external TUI toolkit. Let me correct this by creating a mise task that installs your local TUI Go app globally.\n\nFirst, let me check if the `./tui/` directory exists in your project:\n[Tool uses: execute_bash]",
+    "\n[Tool uses: fs_write]",
+    "I see now! I've examined the `./tui/` directory and found your Go TUI application. I've added a new mise task called `install-taskmaster-tui` to your mise.toml file that will build and install your local TUI app globally.\n\nHere's the task I've added:\n\n```toml\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app globally\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\nsudo cp taskmaster-tui /usr/local/bin/\necho \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\n\"\"\"\n```\n\nThis task:\n1. Changes to the `./tui` directory\n2. Builds the Go application with the output name `taskmaster-tui`\n3. Uses sudo to copy the built binary to `/usr/local/bin/` so it's available globally in your PATH\n4. Displays a confirmation message\n\nYou can run this task with:\n\n```bash\nmise run install-taskmaster-tui\n```\n\nNote that this task will prompt for your password when it runs the `sudo` command to copy the binary to `/usr/local/bin/`.\n[Tool uses: none]",
+    "> /save mem",
+    "> by default can we have it install to ~/.local/bin. If we pass --global it will do what it currently does",
+    "I understand you want to modify the mise task to install the TUI app to `~/.local/bin` by default, and only use `/usr/local/bin` with a `--global` flag. Let me update the task for you.\n[Tool uses: fs_write]",
+    "I've updated the `install-taskmaster-tui` task in your mise.toml file to implement your requirements. Now:\n\n1. By default, it installs to `~/.local/bin/`\n2. With the `--global` flag, it installs to `/usr/local/bin/` (requiring sudo)\n3. It also checks if `~/.local/bin` is in your PATH and provides a helpful warning if it's not\n\nHere's the updated task:\n\n```toml\n[tasks.install-taskmaster-tui]\ndescription = \"Install the local taskmaster TUI app (to ~/.local/bin by default)\"\nrun = \"\"\"\ncd ./tui\ngo build -o taskmaster-tui\n\n# Create ~/.local/bin if it doesn't exist\nmkdir -p ~/.local/bin\n\nif [[ \"$1\" == \"--global\" ]]; then\n  sudo cp taskmaster-tui /usr/local/bin/\n  echo \"✅ Installed taskmaster-tui globally to /usr/local/bin/\"\nelse\n  cp taskmaster-tui ~/.local/bin/\n  echo \"✅ Installed taskmaster-tui to ~/.local/bin/\"\n  \n  # Check if ~/.local/bin is in PATH\n  if [[ \":$PATH:\" != *\":$HOME/.local/bin:\"* ]]; then\n    echo \"⚠️  Warning: ~/.local/bin is not in your PATH\"\n    echo \"   Add this line to your shell profile (~/.bashrc, ~/.zshrc, etc.):\"\n    echo \"   export PATH=\\\"\\$HOME/.local/bin:\\$PATH\\\"\"\n  fi\nfi\n\"\"\"\n```\n\nYou can now run the task with:\n\n```bash\n# Install to ~/.local/bin (default)\nmise run install-taskmaster-tui\n\n# Install globally to /usr/local/bin\nmise run install-taskmaster-tui -- --global\n```\n\nNote that the `--` is needed to pass arguments to the task itself rather than to mise.\n[Tool uses: none]",
+    "> /save mem -f"
+  ],
+  "tools": {
+    "github": [
+      {
+        "ToolSpecification": {
+          "name": "github___get_file_contents",
+          "description": "Get the contents of a file or directory from a GitHub repository",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "branch": {
+                  "description": "Branch to get contents from",
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner (username or organization)"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Path to file/directory"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                }
+              },
+              "type": "object",
+              "required": [
+                "owner",
+                "repo",
+                "path"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_code_scanning_alert",
+          "description": "Get details of a specific code scanning alert in a GitHub repository.",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "alertNumber"
+              ],
+              "properties": {
+                "repo": {
+                  "type": "string",
+                  "description": "The name of the repository."
+                },
+                "owner": {
+                  "description": "The owner of the repository.",
+                  "type": "string"
+                },
+                "alertNumber": {
+                  "type": "number",
+                  "description": "The number of the alert."
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_issue",
+          "description": "Create a new issue in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "title"
+              ],
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "labels": {
+                  "type": "array",
+                  "description": "Labels to apply to this issue",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "milestone": {
+                  "type": "number",
+                  "description": "Milestone number"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Issue title"
+                },
+                "assignees": {
+                  "description": "Usernames to assign to this issue",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "body": {
+                  "description": "Issue body content",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___search_repositories",
+          "description": "Search for GitHub repositories",
+          "input_schema": {
+            "json": {
+              "required": [
+                "query"
+              ],
+              "properties": {
+                "page": {
+                  "description": "Page number for pagination",
+                  "type": "number"
+                },
+                "perPage": {
+                  "description": "Results per page (max 100)",
+                  "type": "number"
+                },
+                "query": {
+                  "type": "string",
+                  "description": "Search query"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___search_users",
+          "description": "Search for GitHub users",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "per_page": {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "description": "Results per page (max 100)",
+                  "type": "number"
+                },
+                "page": {
+                  "minimum": 1,
+                  "type": "number",
+                  "description": "Page number"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "followers",
+                    "repositories",
+                    "joined"
+                  ],
+                  "description": "Sort field (followers, repositories, joined)"
+                },
+                "order": {
+                  "description": "Sort order ('asc' or 'desc')",
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                },
+                "q": {
+                  "description": "Search query using GitHub users search syntax",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "q"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___add_issue_comment",
+          "description": "Add a comment to an existing issue",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "issue_number",
+                "body"
+              ],
+              "type": "object",
+              "properties": {
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "issue_number": {
+                  "description": "Issue number to comment on",
+                  "type": "number"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Comment text"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___search_code",
+          "description": "Search for code across GitHub repositories",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "sort": {
+                  "description": "Sort field ('indexed' only)",
+                  "type": "string"
+                },
+                "q": {
+                  "type": "string",
+                  "description": "Search query using GitHub code search syntax"
+                },
+                "per_page": {
+                  "maximum": 100,
+                  "type": "number",
+                  "minimum": 1,
+                  "description": "Results per page (max 100)"
+                },
+                "page": {
+                  "minimum": 1,
+                  "type": "number",
+                  "description": "Page number"
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "description": "Sort order ('asc' or 'desc')"
+                }
+              },
+              "required": [
+                "q"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_pull_request_review",
+          "description": "Create a review on a pull request",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber",
+                "event"
+              ],
+              "type": "object",
+              "properties": {
+                "event": {
+                  "description": "Review action ('APPROVE', 'REQUEST_CHANGES', 'COMMENT')",
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Review comment text"
+                },
+                "comments": {
+                  "type": "array",
+                  "description": "Line-specific comments array of objects, each object with path (string), position (number), and body (string)",
+                  "items": {
+                    "properties": {
+                      "body": {
+                        "description": "comment body",
+                        "type": "string"
+                      },
+                      "position": {
+                        "description": "line number in the file",
+                        "type": "number"
+                      },
+                      "path": {
+                        "description": "path to the file",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object",
+                    "required": [
+                      "path",
+                      "position",
+                      "body"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "commitId": {
+                  "description": "SHA of commit to review",
+                  "type": "string"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_pull_request",
+          "description": "Get details of a specific pull request",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___search_issues",
+          "description": "Search for issues and pull requests across GitHub repositories",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "per_page": {
+                  "type": "number",
+                  "maximum": 100,
+                  "description": "Results per page (max 100)",
+                  "minimum": 1
+                },
+                "order": {
+                  "description": "Sort order ('asc' or 'desc')",
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                },
+                "q": {
+                  "type": "string",
+                  "description": "Search query using GitHub issues search syntax"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "comments",
+                    "reactions",
+                    "reactions-+1",
+                    "reactions--1",
+                    "reactions-smile",
+                    "reactions-thinking_face",
+                    "reactions-heart",
+                    "reactions-tada",
+                    "interactions",
+                    "created",
+                    "updated"
+                  ],
+                  "description": "Sort field (comments, reactions, created, etc.)"
+                },
+                "page": {
+                  "type": "number",
+                  "description": "Page number",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "q"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___list_issues",
+          "description": "List issues in a GitHub repository with filtering options",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "page": {
+                  "description": "Page number",
+                  "type": "number"
+                },
+                "state": {
+                  "enum": [
+                    "open",
+                    "closed",
+                    "all"
+                  ],
+                  "type": "string",
+                  "description": "Filter by state ('open', 'closed', 'all')"
+                },
+                "since": {
+                  "description": "Filter by date (ISO 8601 timestamp)",
+                  "type": "string"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                },
+                "labels": {
+                  "description": "Filter by labels",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "per_page": {
+                  "type": "number",
+                  "description": "Results per page"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "created",
+                    "updated",
+                    "comments"
+                  ],
+                  "description": "Sort by ('created', 'updated', 'comments')"
+                },
+                "direction": {
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "description": "Sort direction ('asc', 'desc')",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "owner",
+                "repo"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___push_files",
+          "description": "Push multiple files to a GitHub repository in a single commit",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "files": {
+                  "description": "Array of file objects to push, each object with path (string) and content (string)",
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "path",
+                      "content"
+                    ],
+                    "properties": {
+                      "path": {
+                        "description": "path to the file",
+                        "type": "string"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "file content"
+                      }
+                    },
+                    "type": "object",
+                    "additionalProperties": false
+                  }
+                },
+                "message": {
+                  "description": "Commit message",
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "branch": {
+                  "description": "Branch to push to",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "branch",
+                "files",
+                "message"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_pull_request_status",
+          "description": "Get the combined status of all status checks for a pull request",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ],
+              "properties": {
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___list_code_scanning_alerts",
+          "description": "List code scanning alerts in a GitHub repository.",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "required": [
+                "owner",
+                "repo"
+              ],
+              "properties": {
+                "state": {
+                  "description": "State of the code scanning alerts to list. Set to closed to list only closed code scanning alerts. Default: open",
+                  "type": "string",
+                  "default": "open"
+                },
+                "ref": {
+                  "description": "The Git reference for the results you want to list.",
+                  "type": "string"
+                },
+                "repo": {
+                  "description": "The name of the repository.",
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string",
+                  "description": "Only code scanning alerts with this severity will be returned. Possible values are: critical, high, medium, low, warning, note, error."
+                },
+                "owner": {
+                  "description": "The owner of the repository.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_pull_request",
+          "description": "Create a new pull request in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "title": {
+                  "description": "PR title",
+                  "type": "string"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "base": {
+                  "description": "Branch to merge into",
+                  "type": "string"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "head": {
+                  "type": "string",
+                  "description": "Branch containing changes"
+                },
+                "maintainer_can_modify": {
+                  "description": "Allow maintainer edits",
+                  "type": "boolean"
+                },
+                "draft": {
+                  "type": "boolean",
+                  "description": "Create as draft PR"
+                },
+                "body": {
+                  "description": "PR description",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "title",
+                "head",
+                "base"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_branch",
+          "description": "Create a new branch in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "branch"
+              ],
+              "type": "object",
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "from_branch": {
+                  "description": "Source branch (defaults to repo default)",
+                  "type": "string"
+                },
+                "branch": {
+                  "type": "string",
+                  "description": "Name for new branch"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_me",
+          "description": "Get details of the authenticated GitHub user. Use this when a request include \"me\", \"my\"...",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "reason": {
+                  "description": "Optional: reason the session was created",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___list_commits",
+          "description": "Get list of commits of a branch in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo"
+              ],
+              "type": "object",
+              "properties": {
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "perPage": {
+                  "description": "Number of records per page",
+                  "type": "number"
+                },
+                "page": {
+                  "description": "Page number",
+                  "type": "number"
+                },
+                "sha": {
+                  "type": "string",
+                  "description": "Branch name"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_pull_request_files",
+          "description": "Get the list of files changed in a pull request",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_pull_request_reviews",
+          "description": "Get the reviews on a pull request",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ],
+              "properties": {
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_pull_request_comments",
+          "description": "Get the review comments on a pull request",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "pullNumber": {
+                  "description": "Pull request number",
+                  "type": "number"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___list_pull_requests",
+          "description": "List and filter repository pull requests",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "head": {
+                  "type": "string",
+                  "description": "Filter by head user/org and branch"
+                },
+                "state": {
+                  "type": "string",
+                  "description": "Filter by state ('open', 'closed', 'all')"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "direction": {
+                  "type": "string",
+                  "description": "Sort direction ('asc', 'desc')"
+                },
+                "page": {
+                  "type": "number",
+                  "description": "Page number"
+                },
+                "per_page": {
+                  "description": "Results per page (max 100)",
+                  "type": "number"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "base": {
+                  "description": "Filter by base branch",
+                  "type": "string"
+                },
+                "sort": {
+                  "type": "string",
+                  "description": "Sort by ('created', 'updated', 'popularity', 'long-running')"
+                }
+              },
+              "type": "object",
+              "required": [
+                "owner",
+                "repo"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___update_pull_request_branch",
+          "description": "Update a pull request branch with the latest changes from the base branch",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ],
+              "type": "object",
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "expectedHeadSha": {
+                  "description": "The expected SHA of the pull request's HEAD ref",
+                  "type": "string"
+                },
+                "pullNumber": {
+                  "description": "Pull request number",
+                  "type": "number"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_repository",
+          "description": "Create a new GitHub repository in your account",
+          "input_schema": {
+            "json": {
+              "required": [
+                "name"
+              ],
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Repository name",
+                  "type": "string"
+                },
+                "private": {
+                  "type": "boolean",
+                  "description": "Whether repo should be private"
+                },
+                "description": {
+                  "description": "Repository description",
+                  "type": "string"
+                },
+                "autoInit": {
+                  "type": "boolean",
+                  "description": "Initialize with README"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___merge_pull_request",
+          "description": "Merge a pull request",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "commit_title": {
+                  "type": "string",
+                  "description": "Title for merge commit"
+                },
+                "merge_method": {
+                  "description": "Merge method ('merge', 'squash', 'rebase')",
+                  "type": "string"
+                },
+                "commit_message": {
+                  "type": "string",
+                  "description": "Extra detail for merge commit"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner"
+                },
+                "pullNumber": {
+                  "type": "number",
+                  "description": "Pull request number"
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "pullNumber"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___create_or_update_file",
+          "description": "Create or update a single file in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "required": [
+                "owner",
+                "repo",
+                "path",
+                "content",
+                "message",
+                "branch"
+              ],
+              "type": "object",
+              "properties": {
+                "sha": {
+                  "description": "SHA of file being replaced (for updates)",
+                  "type": "string"
+                },
+                "branch": {
+                  "description": "Branch to create/update the file in",
+                  "type": "string"
+                },
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                },
+                "content": {
+                  "description": "Content of the file",
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Commit message"
+                },
+                "path": {
+                  "description": "Path where to create/update the file",
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Repository owner (username or organization)"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___fork_repository",
+          "description": "Fork a GitHub repository to your account or specified organization",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "repo": {
+                  "type": "string",
+                  "description": "Repository name"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "organization": {
+                  "description": "Organization to fork to",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "owner",
+                "repo"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___get_issue",
+          "description": "Get details of a specific issue in a GitHub repository.",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "required": [
+                "owner",
+                "repo",
+                "issue_number"
+              ],
+              "properties": {
+                "repo": {
+                  "description": "The name of the repository.",
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "The owner of the repository."
+                },
+                "issue_number": {
+                  "type": "number",
+                  "description": "The number of the issue."
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "github___update_issue",
+          "description": "Update an existing issue in a GitHub repository",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "repo": {
+                  "description": "Repository name",
+                  "type": "string"
+                },
+                "milestone": {
+                  "type": "number",
+                  "description": "New milestone number"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "New title"
+                },
+                "owner": {
+                  "description": "Repository owner",
+                  "type": "string"
+                },
+                "state": {
+                  "enum": [
+                    "open",
+                    "closed"
+                  ],
+                  "type": "string",
+                  "description": "New state ('open' or 'closed')"
+                },
+                "issue_number": {
+                  "type": "number",
+                  "description": "Issue number to update"
+                },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "New labels"
+                },
+                "body": {
+                  "description": "New description",
+                  "type": "string"
+                },
+                "assignees": {
+                  "description": "New assignees",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "owner",
+                "repo",
+                "issue_number"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      }
+    ],
+    "native___": [
+      {
+        "ToolSpecification": {
+          "name": "fs_read",
+          "description": "Tool for reading files (for example, `cat -n`),  directories (for example, `ls -la`) and images. If user has supplied paths that appear to be leading to images, you should use this tool right away using Image mode. The behavior of this tool is determined by the `mode` parameter. The available modes are:\n- line: Show lines in a file, given by an optional `start_line` and optional `end_line`.\n- directory: List directory contents. Content is returned in the \"long format\" of ls (that is, `ls -la`).\n- search: Search for a pattern in a file. The pattern is a string. The matching is case insensitive.\n\nExample Usage:\n1. Read all lines from a file: command=\"line\", path=\"/path/to/file.txt\"\n2. Read the last 5 lines from a file: command=\"line\", path=\"/path/to/file.txt\", start_line=-5\n3. List the files in the home directory: command=\"line\", path=\"~\"\n4. Recursively list files in a directory to a max depth of 2: command=\"line\", path=\"/path/to/directory\", depth=2\n5. Search for all instances of \"test\" in a file: command=\"search\", path=\"/path/to/file.txt\", pattern=\"test\"\n",
+          "input_schema": {
+            "json": {
+              "properties": {
+                "end_line": {
+                  "description": "Ending line number (optional, for Line mode). A negative index represents a line number starting from the end of the file.",
+                  "default": -1,
+                  "type": "integer"
+                },
+                "image_paths": {
+                  "description": "List of paths to the images. This is currently supported by the Image mode.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "start_line": {
+                  "description": "Starting line number (optional, for Line mode). A negative index represents a line number starting from the end of the file.",
+                  "default": 1,
+                  "type": "integer"
+                },
+                "mode": {
+                  "description": "The mode to run in: `Line`, `Directory`, `Search`. `Line` and `Search` are only for text files, and `Directory` is only for directories. `Image` is for image files, in this mode `image_paths` is required.",
+                  "enum": [
+                    "Line",
+                    "Directory",
+                    "Search",
+                    "Image"
+                  ],
+                  "type": "string"
+                },
+                "depth": {
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Depth of a recursive directory listing (optional, for Directory mode)"
+                },
+                "path": {
+                  "description": "Path to the file or directory. The path should be absolute, or otherwise start with ~ for the user's home.",
+                  "type": "string"
+                },
+                "pattern": {
+                  "type": "string",
+                  "description": "Pattern to search for (required, for Search mode). Case insensitive. The pattern matching is performed per line."
+                },
+                "context_lines": {
+                  "description": "Number of context lines around search results (optional, for Search mode)",
+                  "type": "integer",
+                  "default": 2
+                }
+              },
+              "required": [
+                "path",
+                "mode"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "use_aws",
+          "description": "Make an AWS CLI api call with the specified service, operation, and parameters. All arguments MUST conform to the AWS CLI specification. Should the output of the invocation indicate a malformed command, invoke help to obtain the the correct command.",
+          "input_schema": {
+            "json": {
+              "required": [
+                "region",
+                "service_name",
+                "operation_name",
+                "label"
+              ],
+              "type": "object",
+              "properties": {
+                "profile_name": {
+                  "description": "Optional: AWS profile name to use from ~/.aws/credentials. Defaults to default profile if not specified.",
+                  "type": "string"
+                },
+                "operation_name": {
+                  "description": "The name of the operation to perform.",
+                  "type": "string"
+                },
+                "parameters": {
+                  "description": "The parameters for the operation. The parameter keys MUST conform to the AWS CLI specification. You should prefer to use JSON Syntax over shorthand syntax wherever possible. For parameters that are booleans, prioritize using flags with no value. Denote these flags with flag names as key and an empty string as their value. You should also prefer kebab case.",
+                  "type": "object"
+                },
+                "label": {
+                  "description": "Human readable description of the api that is being called.",
+                  "type": "string"
+                },
+                "region": {
+                  "type": "string",
+                  "description": "Region name for calling the operation on AWS."
+                },
+                "service_name": {
+                  "type": "string",
+                  "description": "The name of the AWS service. If you want to query s3, you should use s3api if possible."
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "execute_bash",
+          "description": "Execute the specified bash command.",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "description": "Bash command to execute",
+                  "type": "string"
+                },
+                "summary": {
+                  "description": "A brief explanation of what the command does",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "command"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "report_issue",
+          "description": "Opens the browser to a pre-filled gh (GitHub) issue template to report chat issues, bugs, or feature requests. Pre-filled information includes the conversation transcript, chat context, and chat request IDs from the service.",
+          "input_schema": {
+            "json": {
+              "required": [
+                "title"
+              ],
+              "type": "object",
+              "properties": {
+                "steps_to_reproduce": {
+                  "type": "string",
+                  "description": "Optional: Previous user chat requests or steps that were taken that may have resulted in the issue or error response."
+                },
+                "expected_behavior": {
+                  "description": "Optional: The expected chat behavior or action that did not happen.",
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "The title of the GitHub issue."
+                },
+                "actual_behavior": {
+                  "description": "Optional: The actual chat behavior that happened and demonstrates the issue or lack of a feature.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "dummy",
+          "description": "This is a dummy tool. If you are seeing this that means the tool associated with this tool call is not in the list of available tools. This could be because a wrong tool name was supplied or the list of tools has changed since the conversation has started. Do not show this when user asks you to list tools.",
+          "input_schema": {
+            "json": {
+              "required": [],
+              "properties": {},
+              "type": "object"
+            }
+          }
+        }
+      },
+      {
+        "ToolSpecification": {
+          "name": "fs_write",
+          "description": "A tool for creating and editing files\n * The `create` command will override the file at `path` if it already exists as a file, and otherwise create a new file\n * The `append` command will add content to the end of an existing file, automatically adding a newline if the file doesn't end with one. The file must exist.\n Notes for using the `str_replace` command:\n * The `old_str` parameter should match EXACTLY one or more consecutive lines from the original file. Be mindful of whitespaces!\n * If the `old_str` parameter is not unique in the file, the replacement will not be performed. Make sure to include enough context in `old_str` to make it unique\n * The `new_str` parameter should contain the edited lines that should replace the `old_str`.",
+          "input_schema": {
+            "json": {
+              "type": "object",
+              "required": [
+                "command",
+                "path"
+              ],
+              "properties": {
+                "insert_line": {
+                  "description": "Required parameter of `insert` command. The `new_str` will be inserted AFTER the line `insert_line` of `path`.",
+                  "type": "integer"
+                },
+                "file_text": {
+                  "type": "string",
+                  "description": "Required parameter of `create` command, with the content of the file to be created."
+                },
+                "path": {
+                  "description": "Absolute path to file or directory, e.g. `/repo/file.py` or `/repo`.",
+                  "type": "string"
+                },
+                "new_str": {
+                  "type": "string",
+                  "description": "Required parameter of `str_replace` command containing the new string. Required parameter of `insert` command containing the string to insert. Required parameter of `append` command containing the content to append to the file."
+                },
+                "old_str": {
+                  "description": "Required parameter of `str_replace` command containing the string in `path` to replace.",
+                  "type": "string"
+                },
+                "command": {
+                  "description": "The commands to run. Allowed options are: `create`, `str_replace`, `insert`, `append`.",
+                  "enum": [
+                    "create",
+                    "str_replace",
+                    "insert",
+                    "append"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "context_manager": {
+    "max_context_files_size": 150000,
+    "global_config": {
+      "paths": [
+        ".amazonq/rules/**/*.md",
+        "README.md",
+        "AmazonQ.md",
+        "CLAUDE.md",
+        "docs/memory-bank/**/*.md",
+        "~/d/AI/Prompts/Rules/Global.md"
+      ],
+      "hooks": {
+        "print-tree": {
+          "trigger": "conversation_start",
+          "type": "inline",
+          "disabled": false,
+          "timeout_ms": 30000,
+          "max_output_size": 10240,
+          "cache_ttl_seconds": 0,
+          "command": "tree"
+        }
+      }
+    },
+    "current_profile": "default",
+    "profile_config": {
+      "paths": [],
+      "hooks": {}
+    }
+  },
+  "context_message_length": 11994,
+  "latest_summary": null
+}
