@@ -2,7 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 
-import { log, readJSON, writeJSON, isSilentMode, findProjectRoot } from '../utils.js';
+import {
+	log,
+	readJSON,
+	writeJSON,
+	isSilentMode,
+	findProjectRoot
+} from '../utils.js';
 
 import { startLoadingIndicator, stopLoadingIndicator } from '../ui.js';
 
@@ -384,7 +390,7 @@ async function expandTask(
 		const projectRoot = path.dirname(path.dirname(tasksPath));
 		const complexityReportPath = path.join(
 			projectRoot,
-			'scripts/task-complexity-report.json'
+			'task-complexity-report.json'
 		);
 		let taskAnalysis = null;
 
@@ -504,7 +510,9 @@ async function expandTask(
 				// Find project root by looking for .git, package.json, etc. starting from tasks.json location
 				const tasksDir = path.dirname(tasksPath);
 				effectiveProjectRoot = findProjectRoot(tasksDir);
-				logger.info(`Derived project root from tasks location: ${effectiveProjectRoot}`);
+				logger.info(
+					`Derived project root from tasks location: ${effectiveProjectRoot}`
+				);
 			}
 
 			// Call generateTextService with the determined prompts
