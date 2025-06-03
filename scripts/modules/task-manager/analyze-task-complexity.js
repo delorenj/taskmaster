@@ -57,11 +57,11 @@ Do not include any explanatory text, markdown formatting, or code block markers 
  */
 async function analyzeTaskComplexity(options, context = {}) {
 	const { session, mcpLog } = context;
-	const tasksPath = options.file || 'tasks/tasks.json';
-	const outputPath = options.output || 'scripts/task-complexity-report.json';
+	// const tasksPath = options.file || 'tasks/tasks.json'; // Removed: options.file is now the direct, resolved path
+	// const outputPath = options.output || 'scripts/task-complexity-report.json'; // Removed: options.output is now the direct, resolved path
 	const thresholdScore = parseFloat(options.threshold || '5');
 	const useResearch = options.research || false;
-	const projectRoot = options.projectRoot;
+	const projectRoot = options.projectRoot; // Expected to be passed by the calling command
 
 	const outputFormat = mcpLog ? 'json' : 'text';
 
@@ -82,7 +82,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 	}
 
 	try {
-		reportLog(`Reading tasks from ${tasksPath}...`, 'info');
+		reportLog(`Reading tasks from ${options.file}...`, 'info'); // Use options.file
 		let tasksData;
 		let originalTaskCount = 0;
 
@@ -91,7 +91,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 			originalTaskCount = options._originalTaskCount || tasksData.tasks.length;
 			if (!options._originalTaskCount) {
 				try {
-					const originalData = readJSON(tasksPath);
+					const originalData = readJSON(options.file); // Use options.file
 					if (originalData && originalData.tasks) {
 						originalTaskCount = originalData.tasks.length;
 					}
@@ -100,7 +100,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 				}
 			}
 		} else {
-			tasksData = readJSON(tasksPath);
+			tasksData = readJSON(options.file); // Use options.file
 			if (
 				!tasksData ||
 				!tasksData.tasks ||
@@ -140,21 +140,21 @@ async function analyzeTaskComplexity(options, context = {}) {
 					generatedAt: new Date().toISOString(),
 					tasksAnalyzed: 0,
 					thresholdScore: thresholdScore,
-					projectName: getProjectName(session),
+					projectName: getProjectName(session, projectRoot), // Pass projectRoot
 					usedResearch: useResearch
 				},
 				complexityAnalysis: []
 			};
-			reportLog(`Writing empty complexity report to ${outputPath}...`, 'info');
-			writeJSON(outputPath, emptyReport);
+			reportLog(`Writing empty complexity report to ${options.output}...`, 'info'); // Use options.output
+			writeJSON(options.output, emptyReport); // Use options.output
 			reportLog(
-				`Task complexity analysis complete. Report written to ${outputPath}`,
+				`Task complexity analysis complete. Report written to ${options.output}`, // Use options.output
 				'success'
 			);
 			if (outputFormat === 'text') {
 				console.log(
 					chalk.green(
-						`Task complexity analysis complete. Report written to ${outputPath}`
+						`Task complexity analysis complete. Report written to ${options.output}` // Use options.output
 					)
 				);
 				const highComplexity = 0;
@@ -174,7 +174,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 				);
 				console.log(`Research-backed analysis: ${useResearch ? 'Yes' : 'No'}`);
 				console.log(
-					`\nSee ${outputPath} for the full report and expansion commands.`
+					`\nSee ${options.output} for the full report and expansion commands.` // Use options.output
 				);
 
 				console.log(
@@ -216,7 +216,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 			let effectiveProjectRoot = projectRoot;
 			if (!effectiveProjectRoot) {
 				// Find project root by looking for .git, package.json, etc. starting from tasks.json location
-				const tasksDir = path.dirname(tasksPath);
+				const tasksDir = path.dirname(options.file); // Use options.file here
 				effectiveProjectRoot = findProjectRoot(tasksDir);
 				reportLog(`Derived project root from tasks location: ${effectiveProjectRoot}`, 'info');
 			}
@@ -377,16 +377,16 @@ async function analyzeTaskComplexity(options, context = {}) {
 					generatedAt: new Date().toISOString(),
 					tasksAnalyzed: tasksData.tasks.length,
 					thresholdScore: thresholdScore,
-					projectName: getProjectName(session),
+					projectName: getProjectName(session, projectRoot), // Pass projectRoot
 					usedResearch: useResearch
 				},
 				complexityAnalysis: complexityAnalysis
 			};
-			reportLog(`Writing complexity report to ${outputPath}...`, 'info');
-			writeJSON(outputPath, finalReport);
+			reportLog(`Writing complexity report to ${options.output}...`, 'info'); // Use options.output
+			writeJSON(options.output, finalReport); // Use options.output
 
 			reportLog(
-				`Task complexity analysis complete. Report written to ${outputPath}`,
+				`Task complexity analysis complete. Report written to ${options.output}`, // Use options.output
 				'success'
 			);
 			// --- End Report Creation & Writing ---
@@ -395,7 +395,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 			if (outputFormat === 'text') {
 				console.log(
 					chalk.green(
-						`Task complexity analysis complete. Report written to ${outputPath}`
+						`Task complexity analysis complete. Report written to ${options.output}` // Use options.output
 					)
 				);
 				const highComplexity = complexityAnalysis.filter(
@@ -423,7 +423,7 @@ async function analyzeTaskComplexity(options, context = {}) {
 				);
 				console.log(`Research-backed analysis: ${useResearch ? 'Yes' : 'No'}`);
 				console.log(
-					`\nSee ${outputPath} for the full report and expansion commands.`
+					`\nSee ${options.output} for the full report and expansion commands.` // Use options.output
 				);
 
 				console.log(

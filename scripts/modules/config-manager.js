@@ -368,8 +368,15 @@ function getOllamaBaseUrl(explicitRoot = null) {
 }
 
 function getTasksPath(explicitRoot = null) {
-	// Directly return value from config
-	return getGlobalConfig(explicitRoot).tasksPath;
+	const config = getConfig(explicitRoot);
+	let tasksPath = config?.global?.tasksPath;
+
+	if (tasksPath === undefined) {
+		// If tasksPath is not defined in the config, use the default.
+		// DEFAULTS.global.tasksPath could also be used here for consistency.
+		tasksPath = './tasks';
+	}
+	return tasksPath;
 }
 
 /**
