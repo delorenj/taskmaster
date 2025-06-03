@@ -10,10 +10,11 @@ import {
 	LEGACY_TASKS_FILE,
 	TASKMASTER_DOCS_DIR,
 	TASKMASTER_REPORTS_DIR,
-	COMPLEXITY_REPORT_FILE,
+	// COMPLEXITY_REPORT_FILE, // This will be constructed dynamically
 	TASKMASTER_CONFIG_FILE,
 	LEGACY_CONFIG_FILE
 } from '../constants/paths.js';
+import { getTasksPath } from '../../scripts/modules/config-manager.js';
 
 /**
  * Find the project root directory by looking for project markers
@@ -212,47 +213,58 @@ export function findComplexityReportPath(
 			return resolvedPath;
 		} else {
 			logger.warn?.(
-				`Explicit complexity report path not found: ${resolvedPath}, trying fallbacks`
+				`Explicit complexity report path not found: ${resolvedPath}, falling back to config-based search.`
 			);
+			// If explicit path is given but not found, we might not want to fallback silently.
+			// However, current instruction is to "try fallbacks", so we proceed.
 		}
 	}
 
-	// 2. Try to get project root from args (MCP) or find it
-	const projectRoot = args?.projectRoot || findProjectRoot();
+	// 2. Get projectRoot
+	const projectRoot = findProjectRoot(args?.projectRoot || process.cwd());
 
 	if (!projectRoot) {
-		logger.warn?.('Could not determine project root directory');
+		logger.warn?.('Could not determine project root directory. Cannot find complexity report.');
 		return null;
 	}
 
-	// 3. Check possible locations in order of preference
-	const locations = [
-		TASKMASTER_REPORTS_DIR, // .taskmaster/reports/ (NEW)
-		'scripts/', // Legacy location
-		'' // Project root
-	];
+	// 3. Get tasksPath from configuration
+	const tasksPath = getTasksPath(projectRoot); // Assuming getTasksPath can work with just projectRoot
 
-	const fileNames = ['task-complexity-report.json', 'complexity-report.json'];
-
-	for (const location of locations) {
-		for (const fileName of fileNames) {
-			const reportPath = path.join(projectRoot, location, fileName);
-			if (fs.existsSync(reportPath)) {
-				logger.info?.(`Found complexity report at: ${reportPath}`);
-
-				// Issue deprecation warning for legacy paths
-				if (location === 'scripts/' || location === '') {
-					logger.warn?.(
-						`⚠️  DEPRECATION WARNING: Found complexity report in legacy location '${reportPath}'. Please migrate to .taskmaster/reports/ directory. Run 'task-master migrate' to automatically migrate your project.`
-					);
-				}
-
-				return reportPath;
-			}
-		}
+	if (!tasksPath) {
+		logger.warn?.(`Tasks path not defined in configuration for project: ${projectRoot}. Cannot find complexity report.`);
+		return null;
 	}
 
-	logger.warn?.(`No complexity report found in project: ${projectRoot}`);
+	// 4. Resolve tasksPath relative to projectRoot to get the absolute tasksPathValue.
+	// tasksPath from config might be relative to project root or absolute.
+	// getTasksPath should ideally return an absolute path or a path relative to projectRoot.
+	// For now, let's assume it's relative to projectRoot if not absolute.
+	const tasksPathValue = path.isAbsolute(tasksPath)
+		? tasksPath
+		: path.resolve(projectRoot, tasksPath);
+
+	// 5. Construct the full path to the complexity report file.
+	const reportFileName = 'task-complexity-report.json'; // Standardized name
+	const complexityReportPath = path.join(tasksPathValue, reportFileName);
+
+	// 6. Check if this file exists.
+	if (fs.existsSync(complexityReportPath)) {
+		logger.info?.(`Found complexity report at: ${complexityReportPath}`);
+		return complexityReportPath;
+	} else {
+		logger.warn?.(`Complexity report not found at expected path: ${complexityReportPath}`);
+		// Also check for 'complexity-report.json' in the same directory as a fallback for the filename itself.
+		const alternateReportFileName = 'complexity-report.json';
+		const alternateComplexityReportPath = path.join(tasksPathValue, alternateReportFileName);
+		if (fs.existsSync(alternateComplexityReportPath)) {
+			logger.info?.(`Found complexity report with alternate name at: ${alternateComplexityReportPath}`);
+			return alternateComplexityReportPath;
+		}
+		logger.warn?.(`Also checked for ${alternateReportFileName} in ${tasksPathValue}, not found.`);
+	}
+
+	logger.warn?.(`No complexity report found in project: ${projectRoot} based on tasksPath in configuration.`);
 	return null;
 }
 
