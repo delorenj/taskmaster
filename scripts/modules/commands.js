@@ -1194,7 +1194,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-o, --output <file>',
 			'Output file path for the report',
-			'scripts/task-complexity-report.json'
+			'AUTO_RESOLVE_COMPLEXITY_REPORT' // Placeholder
 		)
 		.option(
 			'-m, --model <model>',
@@ -1205,20 +1205,45 @@ function registerCommands(programInstance) {
 			'Minimum complexity score to recommend expansion (1-10)',
 			'5'
 		)
-		.option('-f, --file <file>', 'Path to the tasks file', path.join(getTasksPath(), 'tasks.json'))
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			'AUTO_RESOLVE_TASKS_JSON' // Placeholder
+		)
 		.option(
 			'-r, --research',
 			'Use Perplexity AI for research-backed complexity analysis'
 		)
 		.action(async (options) => {
-			const tasksPath = options.file || 'tasks/tasks.json';
-			const outputPath = options.output;
+			const projectRoot = findProjectRoot();
+			if (!projectRoot) {
+				console.error(chalk.red('Error: Could not find project root. Complexity analysis aborted.'));
+				process.exit(1);
+			}
+
+			let resolvedTasksPath;
+			if (options.file === 'AUTO_RESOLVE_TASKS_JSON') {
+				const baseTasksDir = getTasksPath(projectRoot); // This is relative to projectRoot or absolute
+				resolvedTasksPath = path.resolve(projectRoot, baseTasksDir, 'tasks.json');
+			} else {
+				resolvedTasksPath = path.resolve(projectRoot, options.file);
+			}
+
+			let resolvedOutputPath;
+			if (options.output === 'AUTO_RESOLVE_COMPLEXITY_REPORT') {
+				const baseTasksDir = getTasksPath(projectRoot); // tasksPath from config
+				const tasksDirAbs = path.resolve(projectRoot, baseTasksDir); // Absolute tasks directory
+				resolvedOutputPath = path.join(tasksDirAbs, 'task-complexity-report.json');
+			} else {
+				resolvedOutputPath = path.resolve(projectRoot, options.output);
+			}
+
 			const modelOverride = options.model;
 			const thresholdScore = parseFloat(options.threshold);
 			const useResearch = options.research || false;
 
-			console.log(chalk.blue(`Analyzing task complexity from: ${tasksPath}`));
-			console.log(chalk.blue(`Output report will be saved to: ${outputPath}`));
+			console.log(chalk.blue(`Analyzing task complexity from: ${resolvedTasksPath}`));
+			console.log(chalk.blue(`Output report will be saved to: ${resolvedOutputPath}`));
 
 			if (useResearch) {
 				console.log(
@@ -1228,7 +1253,18 @@ function registerCommands(programInstance) {
 				);
 			}
 
-			await analyzeTaskComplexity(options);
+			// Prepare modified options for analyzeTaskComplexity
+			const modifiedOptions = {
+				...options,
+				file: resolvedTasksPath,
+				output: resolvedOutputPath,
+				projectRoot: projectRoot, // Pass projectRoot
+				model: modelOverride, // Ensure model is passed if provided
+				threshold: thresholdScore, // Ensure threshold is passed
+				research: useResearch // Ensure research flag is passed
+			};
+
+			await analyzeTaskComplexity(modifiedOptions);
 		});
 
 	// clear-subtasks command
